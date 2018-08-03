@@ -1,9 +1,35 @@
-laravel:
-  image: mtmacdonald/docker-laravel:1.4.0
-  container_name: laravel_app
-  ports:
-   - 1080:80
-  volumes:
-   - /private/var/www/php-frameworks/laravel:/share
-  external_links:
-   - mysql:mysql
+version: "3.0"
+
+services:
+    webapp:
+      build:
+        context: .  
+      image: rufusmbugua/laravel
+      container_name: rally_website
+      ports:
+      - 1080:80
+      links:
+        - db
+        - adminer
+      deploy:
+        mode: replicated
+        replicas: 3
+        restart_policy:
+          condition: on-failure
+    
+    db:
+      image: mysql
+      container_name: db
+      command: --default-authentication-plugin=mysql_native_password
+      restart: always
+      environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: blog
+
+    adminer:
+      image: adminer
+      container_name: adminer
+      restart: always
+      ports:
+        - 90:8080
+ 
